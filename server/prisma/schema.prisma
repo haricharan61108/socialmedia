@@ -1,0 +1,30 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  username  String   @unique
+  email     String   @unique
+  password  String?
+  googleId  String?  @unique
+  sessions  Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  sess      Json
+  expire    DateTime
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([expire], name: "IDX_session_expire")
+}
